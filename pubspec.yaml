@@ -1,0 +1,27 @@
+name: lista_de_compras
+description: Uma lista de comrar.
+version: 1.0.0+1
+environment:
+  sdk: ">=2.2.2 <3.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^0.1.2
+  intl: ^0.16.0
+  image_picker: ^0.6.1+8
+  image_cropper: ^1.1.0
+  jaguar_orm: ^2.2.6
+  jaguar_query_sqflite: ^2.2.10
+  rxdart: ^0.22.3
+  bloc_pattern: ^2.4.0+2
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner:
+  jaguar_orm_gen:
+flutter:
+  uses-material-design: true
+  assets:
+    - imagens/produtos.png
+
+
