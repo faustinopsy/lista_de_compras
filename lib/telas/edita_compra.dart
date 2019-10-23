@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:lista_de_compras/dados/compra.dart';
 import 'package:lista_de_compras/dados/compras_dao.dart';
@@ -70,9 +74,125 @@ class _EditaCompraState extends State<EditaCompra> {
     }
 
   }
+obtemImagem() =>  _compraEditada.imagem!= null 
+    ? Image.memory(Base64Decoder().convert(_compraEditada.imagem),
+height: 180,
+  width: MediaQuery.of(context).size.width - _borderPadding *2,
+  fit: BoxFit.cover,
+)
+    : Image.asset('imagens/produtos.png',
+height: 180,
+  width: MediaQuery.of(context).size.width - _borderPadding *2,
+  fit: BoxFit.cover,
+);
+
+  mudaFoco(BuildContext context, FocusNode atual, FocusNode proximo){
+    atual.unfocus();
+    FocusScope.of(context).requestFocus(proximo);
+  }
+
+  String _valida(String valor, String mensagem, NumberFormat fmt, {bool opcional = false}){
+    try{
+      if(valor.isNotEmpty){
+        final qtd = fmt.parse(valor);
+        if(qtd <0) return mensagem;
+      }else {
+        return opcional ? null : mensagem;
+      }
+      return null;
+    }on Exception{
+      return mensagem;
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return GestureDetector(
+      onTap: ()=> FocusScope.of(context).requestFocus(FocusNode()),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).accentColor,
+        appBar: AppBar(
+          title: Text(widget.titulo),
+          actions: <Widget>[
+            IconButton(
+              iconSize: 28,
+              icon: Icon(Icons.save, color: Colors.black54,),
+              onPressed: (){
+                if(_formkey.currentState.validate()){
+                  _compraEditada
+                    ..produto = _produtoCtrl.text
+                    ..quantidade = _ftmQtd.parse(_quantidadeCtrl.text)
+                    ..medida =_unidadeDeMedida
+                    ..comprado=false
+                    ..preco =_precoCtrl.text.isNotEmpty ? _ftmValor.parse(_precoCtrl.text) : 0
+                    ..del = false;
+
+                  ComprasDao.salvar(_compraEditada);
+
+                  Navigator.pop(context);
+                }
+              },
+            )
+          ],
+        ),
+        body:  SafeArea(
+          top: false,
+          bottom: false,
+          child: Form(
+            key: _formkey,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(_borderPadding),
+              child: Column(
+                children: <Widget>[
+                  FlatButton(
+                    padding: EdgeInsets.all(0),
+                    child: obtemImagem(),
+                    onPressed: (){
+                      ImagePicker.pickImage(source: ImageSource.camera)
+                      .then((arquivo){
+                      if(arquivo == null) return;
+                      //edita e recorta a foto
+                      ImageCropper.cropImage(
+                          sourcePath: arquivo.path,
+                      maxHeight: 180,
+                        maxWidth: 180
+                      ).then((novoArquivo) async{
+                        //salvva a foto
+                        final bytes = await novoArquivo.readAsBytes();
+                        setState(() {
+                          _compraEditada.imagem = Base64Encoder().convert(bytes);
+                        });
+                      });
+                      });
+                    },
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      TextFormField(
+                      controller: _produtoCtrl,
+                        focusNode: _produtoFocus,
+                        style: TextStyle(fontSize: 20),
+                        decoration: InputDecoration(
+                          labelText: 'Produto',
+                          labelStyle: TextStyle(color: Colors.black45),
+                          border: OutlineInputBorder()
+                        ),
+                        validator: (texto)=> texto.isEmpty ? 'Porduto Invalido' : null,
+                          textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (_)=> mudaFoco(context, _produtoFocus, _quantidadeFocus),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
