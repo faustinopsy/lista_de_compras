@@ -1,4 +1,9 @@
+import 'dart:collection';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lista_de_compras/dados/compra.dart';
+import 'package:lista_de_compras/dados/compras_dao.dart';
 
 class ListaDeCompras extends StatefulWidget {
   @override
@@ -28,6 +33,21 @@ class _ListaDeComprasState extends State<ListaDeCompras> {
           ),
         ],
       ),
+      body: Container(
+        padding: EdgeInsets.only(top: 4),
+        color: Colors.yellow[200],
+        child: RefreshIndicator(
+          onRefresh: ()=> ComprasDao().reloadStream(),
+          child: StreamBuilder<UnmodifiableListView<Compra>>(
+            stream: ComprasDao().compras,
+            initialData: UnmodifiableListView<Compra>([]),
+            builder: (context, snapshot)=>ListView(
+              children: snapshot.data.map(constroiItens).toList(),
+            ),
+          ),
+        ),
+      ),
     );
   }
+  Widget controiItens(Compra compra)
 }

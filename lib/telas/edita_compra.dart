@@ -146,27 +146,31 @@ height: 180,
               padding: EdgeInsets.all(_borderPadding),
               child: Column(
                 children: <Widget>[
-                  FlatButton(
-                    padding: EdgeInsets.all(0),
-                    child: obtemImagem(),
-                    onPressed: (){
-                      ImagePicker.pickImage(source: ImageSource.camera)
-                      .then((arquivo){
-                      if(arquivo == null) return;
-                      //edita e recorta a foto
-                      ImageCropper.cropImage(
-                          sourcePath: arquivo.path,
-                      maxHeight: 180,
-                        maxWidth: 180
-                      ).then((novoArquivo) async{
-                        //salvva a foto
-                        final bytes = await novoArquivo.readAsBytes();
-                        setState(() {
-                          _compraEditada.imagem = Base64Encoder().convert(bytes);
+
+                  Padding(
+                    padding: EdgeInsets.only(bottom: _borderPadding),
+                    child: FlatButton(
+                      padding: EdgeInsets.all(0),
+                      child: obtemImagem(),
+                      onPressed: (){
+                        ImagePicker.pickImage(source: ImageSource.camera)
+                        .then((arquivo){
+                        if(arquivo == null) return;
+                        //edita e recorta a foto
+                        ImageCropper.cropImage(
+                            sourcePath: arquivo.path,
+                        maxHeight: 180,
+                          maxWidth: 180
+                        ).then((novoArquivo) async{
+                          //salvva a foto
+                          final bytes = await novoArquivo.readAsBytes();
+                          setState(() {
+                            _compraEditada.imagem = Base64Encoder().convert(bytes);
+                          });
                         });
-                      });
-                      });
-                    },
+                        });
+                      },
+                    ),
                   ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -184,6 +188,66 @@ height: 180,
                         validator: (texto)=> texto.isEmpty ? 'Porduto Invalido' : null,
                           textInputAction: TextInputAction.next,
                         onFieldSubmitted: (_)=> mudaFoco(context, _produtoFocus, _quantidadeFocus),
+                      ),
+                      SizedBox(height: _borderPadding),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextFormField(
+                              controller: _quantidadeCtrl,
+                              focusNode: _quantidadeFocus,
+                              style: TextStyle(fontSize: 20,color: Colors.black),
+                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                              decoration: InputDecoration(
+                                labelText: 'Quantidade',
+                                labelStyle: TextStyle(color: Colors.black54),
+                                border: OutlineInputBorder()
+                              ),
+                              validator: (valor) => _valida(valor, 'Quantidade Invalida', _ftmQtd),
+                              textInputAction: TextInputAction.next,
+                              onFieldSubmitted: (_)=> mudaFoco(context, _quantidadeFocus, _unidadeFocus),
+                            ),
+                          ),
+                          SizedBox(width: _borderPadding),
+                          Expanded(
+                            child: DropdownButtonFormField(
+                              decoration: InputDecoration(
+                                labelText: 'Unidade de Medida',
+                                labelStyle: TextStyle(color: Colors.black54),
+                                border: OutlineInputBorder()
+                              ),
+                              items: _unidadesMedida.map((medida)=>
+                              DropdownMenuItem<String>(
+                                value: medida,
+                                child: Text( medida,
+                                    style: TextStyle(fontSize: 20,color: Colors.black),
+                                ),
+                              )
+                              ).toList(),
+                              value: _unidadeDeMedida,
+                              onChanged: (selecionado){
+                                setState(() {
+                                  _unidadeDeMedida=selecionado;
+                                });
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: _borderPadding),
+                      TextFormField(
+                        controller: _produtoCtrl,
+                        focusNode: _precoFocus,
+                        style: TextStyle(fontSize: 20),
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        decoration: InputDecoration(
+                          labelText: 'Preço Unitário',
+                          labelStyle: TextStyle(color: Colors.black54),
+                          prefixText: 'R\$',
+                          border: OutlineInputBorder()
+                        ),
+                        validator: (valor) => _valida(valor, 'Preço Inválido', _ftmValor, opcional: true),
+                        textInputAction: TextInputAction.done,
                       )
                     ],
                   )
