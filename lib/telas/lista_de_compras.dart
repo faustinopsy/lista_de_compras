@@ -1,9 +1,12 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lista_de_compras/dados/compra.dart';
 import 'package:lista_de_compras/dados/compras_dao.dart';
+import 'package:lista_de_compras/telas/edita_compra.dart';
 
 class ListaDeCompras extends StatefulWidget {
   @override
@@ -11,7 +14,39 @@ class ListaDeCompras extends StatefulWidget {
 }
 
 class _ListaDeComprasState extends State<ListaDeCompras> {
-  bool modeDeEdicao =false;
+  bool modoDeEdicao =false;
+
+  _mostraDialogo({
+    @required Function onTrue,
+    @required Function onFalse
+}){
+    return showDialog<bool>(
+        context: context,
+      barrierDismissible: false,
+      builder: (context){
+          return AlertDialog(
+            title: Text('Atenção'),
+            content: Text('Confirma a exclusão da(s) Compra(s)?'),
+            actions: <Widget>[
+              RaisedButton(
+                child: Text('Sim'),
+                textColor: Colors.white,
+                color: Colors.red,
+                onPressed: onTrue,
+              ),
+              RaisedButton(
+                child: Text('Não'),
+                textColor: Colors.white,
+                color: Colors.green,
+                onPressed: onFalse,
+              ),
+            ],
+          );
+      }
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +57,29 @@ class _ListaDeComprasState extends State<ListaDeCompras> {
           IconButton(
             iconSize: 28,
             icon: Icon(Icons.add, color: Colors.black),
-            onPressed: (){},
+            onPressed: () async{
+              await Navigator.push((context), MaterialPageRoute(builder: (context)=> EditaCompra(titulo: 'Compra')));
+            },
           ),
           IconButton(
             iconSize: 28,
-            icon: Icon(modeDeEdicao ? Icons.delete: Icons.edit, color:  Colors.black),
+            icon: Icon(modoDeEdicao ? Icons.delete: Icons.edit, color:  Colors.black),
             onPressed: (){
-              setState(() =>modeDeEdicao =!modeDeEdicao);
+              if(modoDeEdicao){
+                ComprasDao.verificaMarcados(()=>
+                _mostraDialogo(
+                  onTrue: (){
+                    ComprasDao.removeMarcados();
+                    Navigator.of(context).pop();
+                  },
+                  onFalse: (){
+                    ComprasDao.desmarcaTodos();
+                    Navigator.of(context).pop();
+                  }
+                )
+                );
+              }
+              setState(() =>modoDeEdicao =!modoDeEdicao);
             },
           ),
         ],
@@ -49,5 +100,58 @@ class _ListaDeComprasState extends State<ListaDeCompras> {
       ),
     );
   }
-  Widget controiItens(Compra compra)
+  Widget constroiItens(Compra compra) {
+    //constroi intens
+    final fmtValor = NumberFormat('#,##0.00', 'pt_BR');
+    final fmtQtd = NumberFormat('#,##0.00', 'pt_BR');
+
+    return InkWell(
+      key: Key('${compra.id}'),
+      onLongPress: () {
+        ComprasDao.salvar(compra
+          ..comprado = !compra
+              .comprado); //troca verdadeiro para false ou vice versa, modifica o valor depois salva
+
+      },
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(4, 2, 4, 2),
+        child: GestureDetector(
+          onTap: () async {
+            await Navigator.push(context,
+                MaterialPageRoute(builder: (context) => EditaCompra(
+                    titulo: 'Modifica a Compra', compraId: compra.id)
+                )
+            );
+          },
+          child: Card(
+            margin: EdgeInsets.all(0),
+            elevation: 1,
+            color: compra.comprado ? Colors.lime : Theme.of(context).accentColor,
+            child: Row(
+              children: <Widget>[
+                compra.imagem != null ? Image.memory(Base64Decoder().convert(compra.imagem),height: 80,width: 80)
+                    : Image.asset('imagens/produtos.png',height: 80,width: 80,fit: BoxFit.cover),
+                SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(compra.produto, style: Theme.of(context).textTheme.title),
+                    Text('${fmtQtd.format(compra.quantidade)} ${compra.medida}', style: Theme.of(context).textTheme.subtitle),
+                    Text(compra.preco > 0 ? 'R\$ ${fmtValor.format(compra.preco)}' : '', style: Theme.of(context).textTheme.body1)
+                  ],
+                ),
+                Spacer(),
+                modoDeEdicao ? Checkbox( value: compra.del, activeColor: Colors.lightGreen,checkColor: Colors.yellow,onChanged: (selecionado){
+                  ComprasDao.salvar(compra..del= selecionado);
+                },
+                )
+                    : Container()
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+  }
 }

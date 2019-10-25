@@ -71,14 +71,15 @@ class _EditaCompraState extends State<EditaCompra> {
           _precoCtrl.text=_ftmValor.format(compra.preco);
         });
       });
+    } else{
+      _quantidadeCtrl.text="1";
     }
-
   }
 obtemImagem() =>  _compraEditada.imagem!= null 
     ? Image.memory(Base64Decoder().convert(_compraEditada.imagem),
 height: 180,
   width: MediaQuery.of(context).size.width - _borderPadding *2,
-  fit: BoxFit.cover,
+  fit: BoxFit.fitHeight,
 )
     : Image.asset('imagens/produtos.png',
 height: 180,
@@ -187,7 +188,7 @@ height: 180,
                         ),
                         validator: (texto)=> texto.isEmpty ? 'Porduto Invalido' : null,
                           textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (_)=> mudaFoco(context, _produtoFocus, _quantidadeFocus),
+                        onFieldSubmitted: (_)=> mudaFoco(context, _produtoFocus, _produtoFocus),
                       ),
                       SizedBox(height: _borderPadding),
                       Row(
@@ -236,7 +237,7 @@ height: 180,
                       ),
                       SizedBox(height: _borderPadding),
                       TextFormField(
-                        controller: _produtoCtrl,
+                        controller: _precoCtrl,
                         focusNode: _precoFocus,
                         style: TextStyle(fontSize: 20),
                         keyboardType: TextInputType.numberWithOptions(decimal: true),
