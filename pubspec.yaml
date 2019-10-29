@@ -1,5 +1,5 @@
 name: lista_de_compras
-description: Uma lista de comrar.
+description: Uma Lista de Compras.
 version: 1.0.0+1
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -14,6 +14,10 @@ dependencies:
   jaguar_query_sqflite: ^2.2.10
   rxdart: ^0.22.3
   bloc_pattern: ^2.4.0+2
+  provider: ^3.1.0+1
+  shared_preferences: ^0.5.4+1
+  font_awesome_flutter: ^8.5.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -23,5 +27,5 @@ flutter:
   uses-material-design: true
   assets:
     - imagens/produtos.png
-
-
+    - imagens/drawer.png
+#flutter pub run flutter_launcher_icons:main

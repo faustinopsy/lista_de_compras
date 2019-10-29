@@ -118,9 +118,9 @@ abstract class _CompraConnection implements Bean<Compra> {
         .setMany(toSetColumns(model, only: only, onlyNonNull: onlyNonNull))
         .id(id.name);
     var retId = await adapter.insert(insert);
-    if (cascade) {
-      Compra newModel;
-    }
+//    if (cascade) {
+//      Compra newModel;
+//    }
     return retId;
   }
 
@@ -143,9 +143,9 @@ abstract class _CompraConnection implements Bean<Compra> {
         .setMany(toSetColumns(model, only: only, onlyNonNull: onlyNonNull))
         .id(id.name);
     var retId = await adapter.upsert(upsert);
-    if (cascade) {
-      Compra newModel;
-    }
+//    if (cascade) {
+//      Compra newModel;
+//    }
     return retId;
   }
 
