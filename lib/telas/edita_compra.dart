@@ -119,7 +119,7 @@ class _EditaCompraState extends State<EditaCompra> {
           actions: <Widget>[
             IconButton(
               iconSize: 28,
-              icon: Icon(Icons.save, color: Colors.black54),                      // <====
+              icon: Icon(Icons.save),                      // <====
               onPressed: () {
                 if(_formKey.currentState.validate()) {
                   _compraEditada

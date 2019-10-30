@@ -53,7 +53,7 @@ class _ListaDeComprasState extends State<ListaDeCompras> {
         actions: <Widget>[
           IconButton(
             iconSize: 28,
-            icon: Icon(Icons.add, color: Colors.black),                          // <====
+            icon: Icon(Icons.add),                          // <====
             onPressed: () async {
               await Navigator.push(context,
                 MaterialPageRoute(builder: (context) => EditaCompra(titulo: 'Compra'))
@@ -62,7 +62,7 @@ class _ListaDeComprasState extends State<ListaDeCompras> {
           ),
           IconButton(
             iconSize: 28,
-            icon: Icon(modoDeEdicao ? Icons.delete : Icons.edit, color: Colors.black),          // <====
+            icon: Icon(modoDeEdicao ? Icons.delete : Icons.edit),          // <====
             onPressed: () {
               if(modoDeEdicao) {
                 ComprasDao.verificaMarcados(() =>
@@ -85,7 +85,7 @@ class _ListaDeComprasState extends State<ListaDeCompras> {
       ),
       body: Container(
         padding: EdgeInsets.only(top: 4),
-        color: Colors.yellow[200],                                                   // <====
+        color: Theme.of(context).primaryColorLight,                                                   // <====
         child: RefreshIndicator(
           onRefresh: () => ComprasDao().reloadStream(),
           child: StreamBuilder<UnmodifiableListView<Compra>>(
